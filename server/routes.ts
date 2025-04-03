@@ -1,11 +1,13 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
+import * as http from "http";
 import { storage } from "./storage";
 import { WebSocketServer, WebSocket } from "ws";
 import { connectionRequestSchema, commandRequestSchema, quickActionRequestSchema } from "@shared/schema";
 import { createClient, Client } from "minecraft-protocol";
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
+import * as https from "https";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
@@ -15,6 +17,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Store the current Minecraft client
   let minecraftClient: Client | null = null;
+  
+  // Function to keep the Replit project alive by sending periodic requests to itself
+  const keepAlive = () => {
+    try {
+      // In Replit, we can just use localhost instead of trying to determine the full hostname
+      const options = {
+        hostname: "localhost",
+        port: 5000,
+        path: '/api/status',
+        method: 'GET',
+        timeout: 10000
+      };
+      
+      const req = http.request(options, (res: any) => {
+        console.log(`Keep-alive ping sent. Status: ${res.statusCode}`);
+      });
+      
+      req.on('error', (e: Error) => {
+        console.error('Error pinging server:', e);
+      });
+      
+      req.end();
+    } catch (error) {
+      console.error('Error in keep-alive function:', error);
+    }
+    
+    // Schedule the next ping (every 5 minutes)
+    setTimeout(keepAlive, 5 * 60 * 1000);
+  };
+  
+  // Start the keep-alive process
+  keepAlive();
   
   // No need to require WebSocket since we already imported it
   
