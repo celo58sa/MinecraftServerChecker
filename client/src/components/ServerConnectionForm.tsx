@@ -24,6 +24,7 @@ interface ServerConnectionFormProps {
     serverPort: number; 
     minecraftVersion: string; 
     botUsername: string;
+    auth: "microsoft" | "mojang" | "offline";
     bypassAntibot: boolean;
   }) => void;
   onDisconnect: () => void;
@@ -41,6 +42,7 @@ export function ServerConnectionForm({
   const [serverPort, setServerPort] = useState("25565");
   const [minecraftVersion, setMinecraftVersion] = useState("");
   const [botUsername, setBotUsername] = useState("MinecraftBot");
+  const [auth, setAuth] = useState<"microsoft" | "mojang" | "offline">("offline");
   const [bypassAntibot, setBypassAntibot] = useState(true);
   const { toast } = useToast();
 
@@ -77,6 +79,7 @@ export function ServerConnectionForm({
       serverPort: parseInt(serverPort, 10),
       minecraftVersion,
       botUsername,
+      auth,
       bypassAntibot,
     });
   };

@@ -14,6 +14,7 @@ interface ConnectionStatusProps {
     serverPort: number;
     minecraftVersion: string;
     botUsername: string;
+    auth?: "microsoft" | "mojang" | "offline";
     bypassAntibot?: boolean;
   } | null;
   logs: Array<{
@@ -78,6 +79,12 @@ export function ConnectionStatus({
                 Username:{" "}
                 <span className="text-[#4CAF50]">
                   {connectionInfo ? connectionInfo.botUsername : "MCBot"}
+                </span>
+              </div>
+              <div>
+                Auth:{" "}
+                <span className="text-[#4CAF50]">
+                  {connectionInfo?.auth ? connectionInfo.auth.charAt(0).toUpperCase() + connectionInfo.auth.slice(1) : "Offline"}
                 </span>
               </div>
               <div>

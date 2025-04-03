@@ -13,6 +13,7 @@ interface ConnectionInfo {
   serverPort: number;
   minecraftVersion: string;
   botUsername: string;
+  auth?: "microsoft" | "mojang" | "offline";
   bypassAntibot?: boolean;
   isConnected: boolean;
 }
@@ -61,6 +62,7 @@ export function useMinecraftBot() {
                 serverPort: data.data.connection.serverPort,
                 minecraftVersion: data.data.connection.minecraftVersion,
                 botUsername: data.data.connection.botUsername,
+                auth: data.data.connection.auth || "offline",
                 bypassAntibot: data.data.connection.bypassAntibot,
                 isConnected: true
               });
@@ -114,6 +116,7 @@ export function useMinecraftBot() {
             serverPort: data.connection.serverPort,
             minecraftVersion: data.connection.minecraftVersion,
             botUsername: data.connection.botUsername,
+            auth: data.connection.auth || "offline",
             bypassAntibot: data.connection.bypassAntibot,
             isConnected: true
           });
