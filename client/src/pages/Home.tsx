@@ -27,6 +27,9 @@ export default function Home() {
           <p className="text-sm md:text-base opacity-70">
             Connect a bot to your Minecraft server
           </p>
+          <div className="mt-2 text-sm text-[#ffcc00]">
+            Kurucu: <span className="font-bold">@celo58 - discord</span>
+          </div>
         </header>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
