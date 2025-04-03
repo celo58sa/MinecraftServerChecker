@@ -14,6 +14,7 @@ interface ConnectionStatusProps {
     serverPort: number;
     minecraftVersion: string;
     botUsername: string;
+    bypassAntibot?: boolean;
   } | null;
   logs: Array<{
     type: "info" | "error" | "success" | "chat";
@@ -84,6 +85,12 @@ export function ConnectionStatus({
               </div>
               <div>
                 Position: <span className="text-[#4CAF50]">--</span>
+              </div>
+              <div>
+                Anti-Bot:{" "}
+                <span className={connectionInfo?.bypassAntibot ? "text-[#4CAF50]" : "text-[#F44336]"}>
+                  {connectionInfo?.bypassAntibot ? "Enabled" : "Disabled"}
+                </span>
               </div>
             </div>
           </div>

@@ -13,6 +13,7 @@ interface ConnectionInfo {
   serverPort: number;
   minecraftVersion: string;
   botUsername: string;
+  bypassAntibot?: boolean;
   isConnected: boolean;
 }
 
@@ -60,6 +61,7 @@ export function useMinecraftBot() {
                 serverPort: data.data.connection.serverPort,
                 minecraftVersion: data.data.connection.minecraftVersion,
                 botUsername: data.data.connection.botUsername,
+                bypassAntibot: data.data.connection.bypassAntibot,
                 isConnected: true
               });
             }
@@ -112,6 +114,7 @@ export function useMinecraftBot() {
             serverPort: data.connection.serverPort,
             minecraftVersion: data.connection.minecraftVersion,
             botUsername: data.connection.botUsername,
+            bypassAntibot: data.connection.bypassAntibot,
             isConnected: true
           });
           addBotMessage({ type: "info", content: "Connection restored from previous session" });
@@ -142,6 +145,14 @@ export function useMinecraftBot() {
     
     setIsConnecting(true);
     addBotMessage({ type: "info", content: "Attempting to connect..." });
+    
+    // Add anti-bot bypass information if enabled
+    if (connectionData.bypassAntibot) {
+      addBotMessage({ 
+        type: "info", 
+        content: "Anti-bot bypass enabled. Bot will perform human-like actions to avoid detection." 
+      });
+    }
     
     try {
       await connectToServer(connectionData);

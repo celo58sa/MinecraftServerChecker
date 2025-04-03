@@ -11,6 +11,8 @@ export const botConnections = pgTable("bot_connections", {
   isConnected: boolean("is_connected").notNull().default(false),
   botUsername: text("bot_username").notNull().default("MCBot"),
   lastConnected: text("last_connected"),
+  auth: text("auth").default("microsoft"),
+  bypassAntibot: boolean("bypass_antibot").default(true),
 });
 
 export const botConnectionSchema = createInsertSchema(botConnections).pick({
@@ -18,6 +20,8 @@ export const botConnectionSchema = createInsertSchema(botConnections).pick({
   serverPort: true,
   minecraftVersion: true,
   botUsername: true,
+  auth: true,
+  bypassAntibot: true,
 });
 
 // Define schemas for requests
@@ -26,6 +30,8 @@ export const connectionRequestSchema = z.object({
   serverPort: z.number().int().min(1).max(65535).default(25565),
   minecraftVersion: z.string().min(1, "Minecraft version is required"),
   botUsername: z.string().default("MCBot"),
+  auth: z.enum(["microsoft", "mojang", "offline"]).default("offline"),
+  bypassAntibot: z.boolean().default(true),
 });
 
 export const commandRequestSchema = z.object({

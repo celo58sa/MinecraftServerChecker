@@ -1,5 +1,5 @@
 import type { Express } from "express";
-import { createServer, type Server } from "node:http";
+import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { WebSocketServer, WebSocket } from "ws";
 import { connectionRequestSchema, commandRequestSchema, quickActionRequestSchema } from "@shared/schema";
@@ -58,12 +58,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Attempt to connect to the Minecraft server
       try {
-        minecraftClient = createClient({
+        // Configure client with anti-bot bypass settings
+        const clientOptions: any = {
           host: data.serverIp,
           port: data.serverPort,
           username: data.botUsername,
-          version: data.minecraftVersion
-        });
+          version: data.minecraftVersion,
+          auth: data.auth || 'offline',
+          // Anti-bot bypass options
+          skipValidation: data.bypassAntibot,
+          hideErrors: false
+        };
+        
+        // Add more anti-bot bypass settings
+        if (data.bypassAntibot) {
+          // Set client settings that make the bot appear more like a real player
+          clientOptions.keepAlive = true;
+          clientOptions.closeTimeout = 240; // Longer timeout to appear more like a real player
+          clientOptions.validateStatus = false; // Skip some validations
+          clientOptions.skipTimeout = true; // Skip login timeout
+          clientOptions.viewDistance = 'far'; // Use player-like view distance
+          clientOptions.chatLengthLimit = 256; // Standard chat limit for players
+        }
+        
+        minecraftClient = createClient(clientOptions);
         
         // Setup listeners
         minecraftClient.on("connect", () => {
@@ -79,6 +97,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
             message: "Successfully connected to server!",
             connection: await storage.getConnectionById(connection.id)
           });
+          
+          // Anti-bot bypass actions: perform human-like behavior after login
+          if (data.bypassAntibot) {
+            try {
+              // Wait a bit before taking actions (humans don't act instantly)
+              setTimeout(() => {
+                // Send a realistic chat message
+                if (minecraftClient) {
+                  minecraftClient.write("chat", { message: "Hi everyone!" });
+                }
+                
+                // Look around like a player (simulating mouse movement)
+                setTimeout(() => {
+                  if (minecraftClient) {
+                    minecraftClient.write("look", { yaw: 180, pitch: 0, onGround: true });
+                  }
+                  
+                  // Move a bit like a player
+                  setTimeout(() => {
+                    // Move head
+                    if (minecraftClient) {
+                      minecraftClient.write("look", { yaw: 190, pitch: 10, onGround: true });
+                    }
+                    
+                    // Jump after a delay (typical player behavior)
+                    setTimeout(() => {
+                      if (minecraftClient && (minecraftClient as any).entity) {
+                        minecraftClient.write("entity_action", { 
+                          entityId: (minecraftClient as any).entity.id, 
+                          actionId: 1, // Jump action
+                          jumpBoost: 0 
+                        });
+                      }
+                    }, 2000); // 2 seconds delay
+                  }, 1500); // 1.5 seconds delay
+                }, 1000); // 1 second delay
+              }, 3000); // 3 seconds after login
+              
+              broadcastUpdate("chat_message", { 
+                message: "Anti-bot bypass: Performing human-like actions to avoid detection" 
+              });
+            } catch (error) {
+              console.error("Error during anti-bot bypass actions:", error);
+            }
+          }
         });
         
         minecraftClient.on("chat", (packet) => {

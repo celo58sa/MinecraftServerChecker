@@ -15,10 +15,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 
 interface ServerConnectionFormProps {
-  onConnect: (data: { serverIp: string; serverPort: number; minecraftVersion: string }) => void;
+  onConnect: (data: { 
+    serverIp: string; 
+    serverPort: number; 
+    minecraftVersion: string; 
+    botUsername: string;
+    bypassAntibot: boolean;
+  }) => void;
   onDisconnect: () => void;
   isConnected: boolean;
   isConnecting: boolean;
@@ -33,6 +40,8 @@ export function ServerConnectionForm({
   const [serverIp, setServerIp] = useState("");
   const [serverPort, setServerPort] = useState("25565");
   const [minecraftVersion, setMinecraftVersion] = useState("");
+  const [botUsername, setBotUsername] = useState("MinecraftBot");
+  const [bypassAntibot, setBypassAntibot] = useState(true);
   const { toast } = useToast();
 
   const handleConnect = () => {
@@ -54,10 +63,21 @@ export function ServerConnectionForm({
       return;
     }
 
+    if (!botUsername || botUsername.trim() === "") {
+      toast({
+        title: "Username Required",
+        description: "Please enter a username for the bot",
+        variant: "destructive",
+      });
+      return;
+    }
+
     onConnect({
       serverIp,
       serverPort: parseInt(serverPort, 10),
       minecraftVersion,
+      botUsername,
+      bypassAntibot,
     });
   };
 
@@ -152,6 +172,39 @@ export function ServerConnectionForm({
                 </SelectContent>
               </Select>
             </div>
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="botUsername">Bot Username</Label>
+            <div className="flex">
+              <div className="flex items-center px-3 bg-[#333333] rounded-l-md border border-r-0 border-[#333333]">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-user">
+                  <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg>
+              </div>
+              <Input
+                id="botUsername"
+                className="bg-[#333333] rounded-r-md focus:ring-2 focus:ring-[#4CAF50]"
+                placeholder="MinecraftBot"
+                value={botUsername}
+                onChange={(e) => setBotUsername(e.target.value)}
+                disabled={isConnected || isConnecting}
+              />
+            </div>
+          </div>
+          
+          <div className="flex items-center space-x-2 pt-2">
+            <Switch 
+              id="bypass-antibot" 
+              checked={bypassAntibot}
+              onCheckedChange={setBypassAntibot}
+              disabled={isConnected || isConnecting}
+              className="data-[state=checked]:bg-[#4CAF50]"
+            />
+            <Label htmlFor="bypass-antibot" className="cursor-pointer">
+              Bypass Anti-Bot Protection
+            </Label>
           </div>
           
           <div className="flex flex-col sm:flex-row gap-3 pt-2">
